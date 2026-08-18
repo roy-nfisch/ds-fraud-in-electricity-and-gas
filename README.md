@@ -23,6 +23,7 @@ The business threshold should ultimately reflect inspection capacity and the rel
 
 | Path | Purpose |
 |---|---|
+| `00_project_plan.md` | End-to-end project plan, data dictionary, and answers to open data questions (start here) |
 | `01_eda.ipynb` | Runnable, memory-aware EDA and client-level invoice aggregation |
 | `02_baseline_model.ipynb` | Day 2 baseline-model scaffold |
 | `03_error_analysis.ipynb` | Day 3 threshold and error-analysis scaffold |
