@@ -79,6 +79,18 @@ Open the URL printed by Jupyter, enter the `work` folder, and start with `01_eda
 
 The EDA reads invoices in chunks and aggregates them to one row per client. A chunk size of `250_000` is the default; allow roughly 1 GB of container memory (the full verified run peaked near 600 MB). Lowering `CHUNK_SIZE` reduces transient chunk memory, although client aggregates and duplicate-row hashes still accumulate across the file. The dated Jupyter image tag is pinned so Roy and Sean receive the same package environment.
 
+### Local notebook settings
+
+`01_eda.ipynb` loads local settings from `.env`. Copy `.env.example` if needed; `.env` is ignored by Git, so each collaborator can use their own values.
+
+The default is `SAVE_CSV_FILE=false`, which means the EDA explores the data without writing generated files. Set it to `true` when you are ready to save `selected_client_features.csv`, `df_train.csv`, and `df_test.csv` in `data/processed/` for `02_baseline_model.ipynb`:
+
+```env
+SAVE_CSV_FILE=true
+```
+
+GitHub Actions sets this value automatically when it runs the notebooks.
+
 ## Recommended workflow and milestones
 
 - **Milestone 1 — baseline, Day 2 at 17:00:** complete EDA, freeze a client-level validation split, and compare a dummy model with one simple classifier.
