@@ -1,0 +1,39 @@
+name: Notebook CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  execute-notebooks:
+    name: Run EDA and baseline notebooks
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Run EDA notebook
+        run: |
+          docker run --rm \
+            -e SAVE_CSV_FILE=true \
+            -v "$PWD":/home/jovyan/work \
+            -w /home/jovyan/work \
+            quay.io/jupyter/scipy-notebook:2025-12-31 \
+            jupyter nbconvert --to notebook --execute 01_eda.ipynb \
+              --output /tmp/01_eda_ci.ipynb \
+              --ExecutePreprocessor.timeout=600
+
+      - name: Run baseline notebook
+        run: |
+          docker run --rm \
+            -v "$PWD":/home/jovyan/work \
+            -w /home/jovyan/work \
+            quay.io/jupyter/scipy-notebook:2025-12-31 \
+            jupyter nbconvert --to notebook --execute 02_baseline_model.ipynb \
+              --output /tmp/02_baseline_model_ci.ipynb \
+              --ExecutePreprocessor.timeout=600
