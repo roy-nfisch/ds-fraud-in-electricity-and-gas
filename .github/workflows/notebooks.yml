@@ -8,8 +8,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  execute-notebooks:
-    name: Run EDA and baseline notebooks
+  validate-notebooks:
+    name: Validate project notebooks
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
