@@ -29,9 +29,9 @@ jobs:
             -v "$PWD":/home/jovyan/work \
             -w /home/jovyan/work \
             quay.io/jupyter/scipy-notebook:2025-12-31 \
-            jupyter nbconvert --to notebook --execute 01_eda.ipynb \
+            bash -lc 'pip install --quiet python-dotenv && jupyter nbconvert --to notebook --execute 01_eda.ipynb \
               --output /tmp/01_eda_ci.ipynb \
-              --ExecutePreprocessor.timeout=600
+              --ExecutePreprocessor.timeout=600'
 
       - name: Run baseline notebook
         run: |

@@ -4,11 +4,14 @@ version = "0.1.0"
 requires-python = ">=3.13"
 dependencies = [
     "imbalanced-learn>=0.14.2",
+    "lightgbm>=4.6.0",
     "matplotlib>=3.10.0",
     "pandas>=3.0.3",
     "pyarrow>=23.0.1",
+    "python-dotenv>=1.1.0",
     "scikit-learn>=1.9.0",
     "seaborn>=0.13.2",
+    "xgboost>=3.0.0",
 ]
 
 [dependency-groups]
