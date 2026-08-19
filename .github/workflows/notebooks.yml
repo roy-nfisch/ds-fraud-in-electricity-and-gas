@@ -17,6 +17,11 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
+      - name: Prepare writable generated-data directory
+        run: |
+          mkdir -p data/processed
+          chmod a+rwx data data/processed
+
       - name: Run EDA notebook
         run: |
           docker run --rm \
