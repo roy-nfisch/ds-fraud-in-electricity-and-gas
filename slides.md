@@ -84,30 +84,39 @@ The target is in `client_train`; the repeated behaviour is in `invoice_train`. E
 
 **Data note:** the sequence comparison excludes 5,333 clients without a valid transition between invoice-dated meter readings.
 
-## Slide 8 — The EDA changed what entered the model
+## Slide 8 — EDA conclusion: 15 client inputs for the baseline
 
-| Keep as baseline predictors | Exclude or postpone | What the baseline code does |
-|---|---|---|
-| 12 created numeric features | `client_id`, raw dates, invalid tenure, and possible last-invoice leakage fields | Numeric pipeline: median `SimpleImputer` → `StandardScaler` |
-| `client_catg`, `disrict`, `region` | All `months_number` features and redundant/outlier-sensitive aggregates | Categorical pipeline: most-frequent `SimpleImputer` → `OneHotEncoder(handle_unknown="ignore")` |
-| All client and invoice rows remain in the source data | 11 duplicate-looking rows are investigated, not automatically deleted | `ColumnTransformer` combines both pipelines; `.fit()` is called on `model_train` only |
+The EDA converts many invoice rows into **one row per client**. We selected 15 inputs for the first model: **3 original client fields and 12 features created from invoice history**.
 
-**Say:** “An outlier is not automatically an error; investigate before changing it.”
+| Feature group | Inputs selected | Original or created? | Why we keep them |
+|---|---|---|---|
+| Client information | `client_catg`, `disrict`, `region` | **Original** fields from `client_train` | Fraud rates differ across client categories and geographic groups. These are category labels, not numeric measurements. |
+| Amount of history | `invoice_count`, `active_days`, `mean_invoice_gap_days` | **Created** from invoice rows and dates | Describe how much history exists and whether invoices are recorded regularly. History is useful, but it also carries observation-window bias. |
+| Consumption behaviour | `mean_consumption`, `zero_consumption_rate`, `elec_share` | **Created** from consumption values and meter type | Compare typical consumption, repeated zero readings, and electricity/gas activity between clients. |
+| Meter-reading behaviour | `backwards_index_rate`, `meter_count`, `mean_monthly_submission_index_delta`, `backward_submission_rate` | **Created** from meter identifiers, indices, and invoice dates | Capture backward readings, number of recorded meter identifiers, and changes between consecutive readings. |
+| Meter/consumption consistency | `large_mismatch_count`, `reconciliation_gap_abs_mean` | **Created** from index changes and summed consumption | Test whether unusual differences between meter movement and reported consumption are useful signals. |
 
-**Where this appears:** these operations are implemented in `02_baseline_model.ipynb`, not in the EDA export. The EDA saves raw selected values; the model pipeline learns imputation, scaling, and one-hot categories after the split.
+### What happens before modelling?
 
-**Scaling limitation:** monthly index changes and reconciliation gaps are extremely heavy-tailed. `StandardScaler` is implemented, but it is not robust to extremes; compare a log transformation or `RobustScaler` later.
+- We **do not fill missing values in the EDA**. Missing sequence values remain missing in the exported data.
+- We **do not delete client or invoice rows**. The 11 duplicate-looking invoices and backward readings remain until they are confirmed as errors.
+- We keep `client_id` for joining results and `target` for evaluation, but neither is a model input.
+- We leave unreliable dates, invalid tenure, `months_number` features, and possible last-invoice investigation fields out of the first model.
 
-**Effect on the project:** the baseline uses 12 understandable numeric features and 3 categorical fields rather than every available column. Error analysis must specifically check history length and geography, while a real deployment would need a prediction-date cutoff to prevent future information from leaking in.
+**Handoff:** `client_train + invoice_train → one row per client → 15 selected inputs → save the client feature CSV → start the baseline model`
 
-## Slide 9 — Baseline: one simple linear classifier
+**Say:** “The result of our EDA is not a fraud prediction. It is a documented client-level dataset with 15 selected inputs that we can now test in a first model.”
 
-- Compare a `DummyClassifier` with **logistic regression**.
-- Logistic regression is the linear model for a binary target; linear regression is for numeric targets.
-- Use an explicit EDA-informed feature list, not every available column.
-- Pipeline: median imputation → standard scaling / one-hot encoding → logistic regression.
+## Slide 9 — Baseline: start simple and explainable
 
-**Visual:** small pipeline diagram.
+- We compare two models: a **dummy model** and **logistic regression**.
+- The dummy model learns no client behaviour. It gives us the minimum result that a real model must beat.
+- Logistic regression is a simple linear model for a yes/no target: it combines the 15 selected features and gives each client a fraud score between 0 and 1.
+- We start here because we can explain what goes in, inspect what the model learns, and study its mistakes before trying more complex models.
+
+**Visual:** `15 client features → logistic regression → fraud score → ranked inspection list`
+
+**Say:** “This is not our final model. It is our reference point: can a simple, transparent model create a better inspection list than guessing from the overall fraud rate?”
 
 ## Slide 10 — Baseline results
 
