@@ -207,6 +207,7 @@ We compared linear, distance-based, tree, and anomaly-detection approaches using
 
 The three tree models agree strongly:
 
+- The agreement plot counts fraud clients by how many of the three models **missed** them: **2,250 missed by 0**, **1,066 by 1**, **1,002 by 2**, and **3,248 by all 3**.
 - **3,248 fraud clients (42.9% of all fraud)** were missed by all three models.
 - **2,250 fraud clients** were caught by all three.
 - The remaining fraud clients were split between partial agreement groups.
@@ -216,7 +217,9 @@ The three tree models agree strongly:
 
 **Message:** changing model family alone will not solve the main blind spot. We need better signal for short-history and consistently missed clients, and we need to verify that the ranking is useful in the intended inspection segments.
 
-![Model agreement: which fraud clients the three tree models catch or miss](presentation/assets/error_model_agreement.png)
+![Fraud clients caught by zero, one, two, or all three models](presentation/assets/error_models_caught_0_to_3.png)
+
+**How to read it:** `0` means all three models caught the client; `3` means all three models missed the client. This is the clearest evidence that the main limitation is shared missing signal, not only the choice of model family.
 
 ![Missed-by-all fraud split by history](presentation/assets/error_missed_history_split.png)
 
