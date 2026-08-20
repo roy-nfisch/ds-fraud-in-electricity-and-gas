@@ -10,14 +10,7 @@ The operational stakeholder is assumed to be a utility fraud-investigation team 
 
 Primary model-selection metric: **average precision (PR-AUC)**. It measures ranking quality under the strong class imbalance (about 5.6% fraud in the training clients) and is more informative here than accuracy.
 
-Operational metrics to report alongside it:
-
-- **Precision@k**: expected hit rate among the top `k` clients the team can inspect.
-- **Recall@k**: share of all known fraud captured within that inspection budget.
-- **Confusion matrix at the chosen threshold**: makes false inspections and missed fraud explicit.
-- **ROC-AUC**: useful as a secondary ranking metric, but not sufficient on its own.
-
-The business threshold should ultimately reflect inspection capacity and the relative cost of a false positive versus missed fraud.
+**ROC-AUC** is reported alongside it as a secondary ranking metric, but is not sufficient on its own: with only ~5.6% fraud, it can look strong even for a model that isn't very useful for a capacity-limited inspection team, since it's dominated by how well the model ranks the (very common) non-fraud majority.
 
 ## Project structure
 
