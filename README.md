@@ -83,10 +83,10 @@ The EDA reads invoices in chunks and aggregates them to one row per client. A ch
 
 `01_eda.ipynb` loads local settings from `.env`. Copy `.env.example` if needed; `.env` is ignored by Git, so each collaborator can use their own values.
 
-The default is `SAVE_CSV_FILE=false`, which means the EDA explores the data without writing generated files. Set it to `true` when you are ready to save `selected_client_features.csv`, `df_train.csv`, and `df_test.csv` in `data/processed/` for `02_baseline_model.ipynb`:
+The default is `SAVE_TRAINING_ARTIFACTS=false`, which means the EDA explores the data without writing generated files. Set it to `true` when you are ready to save the complete `df_training.csv` and the fitted feature-engineering pipeline in `data/processed/`:
 
 ```env
-SAVE_CSV_FILE=true
+SAVE_TRAINING_ARTIFACTS=true
 ```
 
 GitHub Actions sets this value automatically when it runs the notebooks.
