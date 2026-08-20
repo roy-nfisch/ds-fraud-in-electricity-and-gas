@@ -90,7 +90,7 @@ The next slides show how we reached this conclusion:
 
 **Visual:** `client → many invoices → client-level feature row → model score`.
 
-![EDA target balance](presentation/assets/eda_target_balance.png)
+![EDA target balance](assets/eda_target_balance.png)
 
 **Evaluation fact:** 01 is EDA and feature construction. 02–04 use five-fold stratified CV on the complete saved client table. 05 creates a one-time in-memory holdout after model choices are frozen.
 
@@ -129,9 +129,9 @@ The target is in `client_train`; repeated behaviour is in `invoice_train`. Every
 
 **Visual:** history bias plus the reconciliation scatterplot from the notebook.
 
-![Fraud rates by client category, district, and region](presentation/assets/eda_categorical_patterns.png)
+![Fraud rates by client category, district, and region](assets/eda_categorical_patterns.png)
 
-![Index change versus reported consumption](presentation/assets/eda_reconciliation.png)
+![Index change versus reported consumption](assets/eda_reconciliation.png)
 
 ## Slide 8 — EDA conclusion: the 15 client inputs
 
@@ -156,7 +156,7 @@ Before modelling:
 
 The EDA did not delete invoice rows. It made an explicit, reproducible decision about which client-level signals enter the first model and which questionable or redundant columns wait for error analysis.
 
-![Client-level feature correlations](presentation/assets/eda_feature_correlations.png)
+![Client-level feature correlations](assets/eda_feature_correlations.png)
 
 ## Slide 9 — Reproducible modelling pipeline
 
@@ -201,7 +201,7 @@ We compared linear, distance-based, tree, and anomaly-detection approaches using
 
 **Decision:** continue with LightGBM for tuning. It improves on logistic regression by **0.077 PR-AUC**, while the other tree models remain close behind. The gain is evidence for non-linear combinations, not evidence that one feature proves fraud.
 
-![Precision-recall curves for the model extensions](presentation/assets/model_precision_recall_comparison.png)
+![Precision-recall curves for the model extensions](assets/model_precision_recall_comparison.png)
 
 ## Slide 12 — Error analysis: where the models fail
 
@@ -217,11 +217,11 @@ The three tree models agree strongly:
 
 **Message:** changing model family alone will not solve the main blind spot. We need better signal for short-history and consistently missed clients, and we need to verify that the ranking is useful in the intended inspection segments.
 
-![Fraud clients caught by zero, one, two, or all three models](presentation/assets/error_models_caught_0_to_3.png)
+![Fraud clients caught by zero, one, two, or all three models](assets/error_models_caught_0_to_3.png)
 
 **How to read it:** `0` means all three models caught the client; `3` means all three models missed the client. This is the clearest evidence that the main limitation is shared missing signal, not only the choice of model family.
 
-![Missed-by-all fraud split by history](presentation/assets/error_missed_history_split.png)
+![Missed-by-all fraud split by history](assets/error_missed_history_split.png)
 
 ## Slide 13 — Final tuned model
 
@@ -240,7 +240,7 @@ We tuned LightGBM and compared one-hot preprocessing with native categorical han
 
 **Caveat:** this final holdout is a useful final check created from `df_training.csv`, but it is not the separate unlabelled Kaggle test set and should not be reused for repeated tuning.
 
-![Final holdout recall by invoice-history group](presentation/assets/final_holdout_recall_by_invoice_history.png)
+![Final holdout recall by invoice-history group](assets/final_holdout_recall_by_invoice_history.png)
 
 ## Slide 14 — Recommendation
 
