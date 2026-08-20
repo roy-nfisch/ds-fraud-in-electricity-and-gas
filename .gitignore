@@ -30,3 +30,6 @@ reports/figures/
 .ruff_cache/
 htmlcov/
 .coverage
+
+# PPTX temporary files
+~$*
