@@ -10,25 +10,21 @@ The operational stakeholder is assumed to be a utility fraud-investigation team 
 
 Primary model-selection metric: **average precision (PR-AUC)**. It measures ranking quality under the strong class imbalance (about 5.6% fraud in the training clients) and is more informative here than accuracy.
 
-Operational metrics to report alongside it:
-
-- **Precision@k**: expected hit rate among the top `k` clients the team can inspect.
-- **Recall@k**: share of all known fraud captured within that inspection budget.
-- **Confusion matrix at the chosen threshold**: makes false inspections and missed fraud explicit.
-- **ROC-AUC**: useful as a secondary ranking metric, but not sufficient on its own.
-
-The business threshold should ultimately reflect inspection capacity and the relative cost of a false positive versus missed fraud.
+**ROC-AUC** is reported alongside it as a secondary ranking metric, but is not sufficient on its own: with only ~5.6% fraud, it can look strong even for a model that isn't very useful for a capacity-limited inspection team, since it's dominated by how well the model ranks the (very common) non-fraud majority.
 
 ## Project structure
 
 | Path | Purpose |
 |---|---|
-| `01_eda.ipynb` | Runnable, memory-aware EDA and client-level invoice aggregation |
+| `01_eda.ipynb` | Runnable, memory-aware EDA, client-level invoice aggregation, and the reusable feature-engineering functions the later notebooks build on |
 | `02_baseline_model.ipynb` | Day 2 baseline-model scaffold |
-| `03_error_analysis.ipynb` | Day 3 threshold and error-analysis scaffold |
-| `04_final_model.ipynb` | Final comparison and holdout-evaluation scaffold |
+| `03_model_extension.ipynb` | Model comparison across LightGBM, Random Forest, and XGBoost |
+| `04_error_analysis.ipynb` | Error analysis: where the candidate models agree/disagree, and segment-level blind spots |
+| `05_final_model.ipynb` | Hyperparameter tuning, the ensemble go/no-go decision, the one-time holdout evaluation, and persisting the frozen model to `models/` |
+| `06_model_application.ipynb` | Applies the frozen model to the Zindi competition's unlabelled test clients and builds the submission file |
 | `scripts/csv_to_parquet.py` | Headless, streaming CSV-to-Parquet conversion |
 | `data/` | Source CSVs, committed Parquet inputs, and local generated features |
+| `models/` | Persisted frozen model pipeline and metadata (written by `05`, read by `06`) |
 
 The numbered notebooks are intentionally separate so the analysis, baseline, error analysis, and final model can evolve independently.
 
