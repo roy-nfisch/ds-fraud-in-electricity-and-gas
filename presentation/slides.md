@@ -242,7 +242,21 @@ We tuned LightGBM and compared one-hot preprocessing with native categorical han
 
 ![Final holdout recall by invoice-history group](assets/final_holdout_recall_by_invoice_history.png)
 
-## Slide 14 — Recommendation
+## Slide 14 — Kaggle submission: a credible first result
+
+After submitting the final model, our public leaderboard result was:
+
+- **Rank 275 of 710 actually rated participants** — approximately the **top 39%** of the rated leaderboard.
+- **Public score: 0.826022007**.
+- **One submission** recorded at the time of the screenshot.
+
+This is a positive external check: the model was not only strong in our local validation, it produced a competitive first submission. The public leaderboard is provisional because Kaggle notes that it reflects only part of the test set until the competition closes.
+
+![Kaggle public leaderboard result](assets/kaggle_leaderboard_rank_275.png)
+
+**Interpretation:** rank 275 is not a “winning” claim, but it is a credible result for a first submitted model and supports the decision to focus next on feature quality, temporal validation, and error analysis rather than blindly tuning more.
+
+## Slide 15 — Recommendation
 
 Use the tuned LightGBM as a ranking aid for inspection prioritisation, not as an automatic fraud verdict.
 
@@ -257,7 +271,7 @@ The model has useful lift over the baseline, but the error analysis identifies i
 
 **What we cannot claim:** that it proves fraud, that it is equally reliable in every region, or that the random split represents future deployment performance.
 
-## Slide 15 — Next steps
+## Slide 16 — Next steps
 
 1. **Define the operating point:** inspection capacity, cost of false positives, and cost of missed fraud.
 2. **Add short-history signal:** relative or sequence features that work when only a few invoices exist.
@@ -266,7 +280,7 @@ The model has useful lift over the baseline, but the error analysis identifies i
 5. **Check segments:** repeat precision/recall by region, category, history length, and meter availability.
 6. **Protect the holdout:** freeze the feature contract and threshold before any further final evaluation.
 
-## Slide 16 — Extra / bonus: reproducibility and CI/CD
+## Slide 17 — Extra / bonus: reproducibility and CI/CD
 
 We added engineering practices beyond the model itself:
 
