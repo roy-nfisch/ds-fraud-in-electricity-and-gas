@@ -1,19 +1,6 @@
 # Fraud detection in electricity and gas consumption — data-science presentation
 
-This document accompanies the final PowerPoint and PDF presentation. It follows the complete 23-slide PowerPoint and adds the context that is useful when reading the project without a presenter.
-
-The PDF is a shorter 19-page presentation cut. It keeps the main story and omits four optional or detailed PowerPoint slides:
-
-| PDF pages | Matching PowerPoint slides |
-|---|---|
-| 1–7 | Slides 1–7 |
-| 8 | Slide 10 — EDA conclusion |
-| 9–16 | Slides 11–18 |
-| 17 | Slide 20 — Questions, option B |
-| 18 | Slide 21 — Reproducibility and CI/CD |
-| 19 | Slide 22 — Thank you |
-
-PowerPoint slides 8, 9, 19, and 23 provide extra feature detail, EDA evidence, an alternative questions slide, and next steps.
+This Markdown file is the content blueprint for the final presentation. It keeps the project story, evidence, decisions, and notebook visuals in one readable place. Transitional questions and thank-you slides are intentionally omitted.
 
 ## Slide 1 — Title
 
@@ -30,7 +17,7 @@ Roy Grossman · Sean Kress
 2. **Data and EDA:** aggregation, feature contract, patterns, and bias.
 3. **Modelling:** pipeline, baseline, model comparison, error analysis, and final model.
 4. **Recommendation:** intended use, operating controls, and limitations.
-5. **Discussion and next steps:** questions, roadmap, and engineering work.
+5. **Next steps:** roadmap and engineering work.
 
 ## Slide 3 — Business case
 
@@ -51,6 +38,10 @@ The model outputs a risk score for each client. Investigators choose a capacity-
 - **Secondary diagnostic:** ROC-AUC, useful for ranking comparison but too optimistic as a headline metric on rare classes.
 
 **Decision rule:** select the model by out-of-fold PR-AUC, then choose the inspection cut-off using capacity, false-positive cost, and missed-fraud cost.
+
+**Visual from `01_eda.ipynb`: target balance**
+
+![Target balance in the labelled client data](./images/eda-target-balance.png)
 
 ## Slide 5 — Our data-science question
 
@@ -115,6 +106,18 @@ Three findings changed the modelling plan:
 
 No numeric feature is individually decisive: the largest linear target correlations are only **0.128** for `active_days` and **0.127** for `invoice_count`. This supports combining signals and testing non-linear models.
 
+**Visual from `01_eda.ipynb`: categorical fraud patterns**
+
+![Fraud rates by client category, district, and region](./images/eda-categorical-patterns.png)
+
+The categorical plots show that client segment and geography carry different fraud base rates. They are useful context signals, but they also require segment-level monitoring so that the model does not silently favour well-represented groups.
+
+**Visual from `01_eda.ipynb`: meter and consumption reconciliation**
+
+![Meter-index change compared with reported consumption](./images/eda-reconciliation.png)
+
+The reconciliation view tests whether changes in submitted meter readings agree with reported consumption. Large disagreements are uncommon, but they are more pronounced for part of the fraud-labelled population.
+
 ## Slide 10 — EDA conclusion: what changes for modelling?
 
 EDA changed three parts of the modelling plan:
@@ -126,6 +129,12 @@ EDA changed three parts of the modelling plan:
 | **Investigate next** | Build stronger short-history signals and validate meter resets and reconciliation gaps with domain experts. |
 
 The first model therefore uses one explicit 15-input contract rather than every available aggregate. Unusual readings remain available as possible signals; rows are not deleted without evidence.
+
+**Visual from `01_eda.ipynb`: feature correlations**
+
+![Correlations between the client-level numeric features](./images/eda-feature-correlations.png)
+
+The correlation plot supports the smaller feature contract. Some inputs describe overlapping ideas—especially the amount of client history—but no pair alone explains fraud and no automatic correlation-based deletion rule was used.
 
 ## Slide 11 — Reproducible modelling pipeline
 
@@ -166,6 +175,12 @@ Every candidate uses the same 15-input contract and five-fold stratified compari
 
 LightGBM earns the tuning budget. The result also shows that non-linear tree models capture structure that the linear baseline misses.
 
+**Visual from `03_model_extension.ipynb`: model comparison**
+
+![Out-of-fold precision-recall curves for the candidate models](./images/model-precision-recall-comparison.png)
+
+The precision-recall curves make the comparison visible across thresholds rather than at one arbitrary cut-off. LightGBM stays above the other candidates through most of the useful recall range.
+
 ## Slide 14 — Error analysis: where the models fail
 
 At a top-10% inspection capacity, compare LightGBM, XGBoost, and Random Forest on all 7,566 fraud clients:
@@ -178,6 +193,18 @@ At a top-10% inspection capacity, compare LightGBM, XGBoost, and Random Forest o
 The unanimous-miss group is **42.9% of all fraud clients**. This high overlap explains why a simple ensemble adds little.
 
 The holdout confirms a data-availability blind spot: recall@10% rises from **5.6%** in the shortest invoice-history quintile to **55.9%** in the longest. Region recall also ranges from **19.9%** in region 104 to **68.2%** in region 311.
+
+**Visual from `04_error_analysis.ipynb`: model agreement**
+
+![Fraud clients caught by zero, one, two, or all three leading models](./images/error-models-caught-0-to-3.png)
+
+Here, **0 models missing a client** means all three models caught that fraud case; **3 models missing a client** means every leading model missed it. The large final group points to a shared feature limitation, not just a weak choice of algorithm.
+
+**Visual from `04_error_analysis.ipynb`: shared misses by history length**
+
+![Fraud clients missed by all three models, split by invoice-history length](./images/error-missed-history-split.png)
+
+The missed-history split connects the shared errors to evidence availability: clients with limited history give every model less behaviour to learn from.
 
 ## Slide 15 — Final tuned model
 
@@ -195,6 +222,12 @@ Frozen-model result on the one-time in-memory holdout:
 - **ROC-AUC 0.8354**
 
 Tuning improves the model modestly; it does not solve the short-history feature gap.
+
+**Visual from `05_final_model.ipynb`: holdout recall by history length**
+
+![Final holdout recall by invoice-history group](./images/final-holdout-recall-by-history.png)
+
+This final holdout check confirms the bias found during EDA: recall increases sharply as more invoice history becomes available. The production recommendation therefore includes monitoring by history length.
 
 ## Slide 16 — One illustrative example — not a recommendation
 
@@ -218,7 +251,9 @@ The first submitted model achieved:
 
 This is an external sanity check, not a direct comparison with local PR-AUC. Zindi’s public score uses the competition evaluation and only part of the test set until final ranking.
 
-![Zindi public leaderboard result](images/zindi-leaderboard.png)
+**Visual evidence: public leaderboard result**
+
+![Zindi public leaderboard result](./images/zindi-leaderboard.png)
 
 ## Slide 18 — Recommendation
 
@@ -232,23 +267,7 @@ Required operating controls:
 - Record investigation outcomes for calibration, drift checks, and retraining.
 - Do not interpret high feature importance or a high score as causal evidence of fraud.
 
-## Slide 19 — Questions? — option A
-
-**What would you challenge, test, or improve next?**
-
-Use this as the discussion pause after the recommendation and before presenting the planned next iteration.
-
-![Questions — electricity and gas fraud investigation](images/questions-energy-fraud.png)
-
-## Slide 20 — Questions? — option B
-
-**What are your questions?**
-
-This alternative is more minimal and analytical. Its visual turns a meter-reading signal into a question mark and offers four discussion routes: data, features, models, and limitations.
-
-![Alternative questions slide — signal question mark](images/questions-signal.png)
-
-## Slide 21 — Extra / bonus: reproducibility and CI/CD
+## Slide 19 — Extra / bonus: reproducibility and CI/CD
 
 Engineering work completed alongside modelling:
 
@@ -261,16 +280,7 @@ Engineering work completed alongside modelling:
 
 The project shows our full process: from raw data and feature creation to model comparison, error analysis, and a practical recommendation.
 
-## Slide 22 — Thank you
-
-**Thank you**  
-Roy Grossman · Sean Kress
-
-Project repository: <https://github.com/roy-nfisch/ds-fraud-in-electricity-and-gas>
-
-![QR code for the project repository](images/github-repository-qr.png)
-
-## Slide 23 — Next steps
+## Slide 20 — Next steps
 
 1. **Temporal validation:** train on earlier invoices and test on later clients/events using a defensible label timestamp.
 2. **Short-history features:** ratios, recency, early-life patterns, and sequence features that do not require many invoices.
